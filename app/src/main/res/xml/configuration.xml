@@ -1,0 +1,66 @@
+<PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    >
+    
+    <PreferenceCategory android:title="Server Connection (required)" app:iconSpaceReserved="false" >
+        <EditTextPreference
+            android:title="DIGITAL PERSON SERVER URL"
+            app:iconSpaceReserved="false"
+            android:summary="Websocket URL prefixed with wss://"
+            android:key="connectionUrl"
+            android:defaultValue="wss://dh.soulmachines.cloud" />
+    </PreferenceCategory>
+
+
+    <PreferenceCategory android:key="existingToken" android:title="Access Token (required)" app:iconSpaceReserved="false">
+        <EditTextPreference
+            android:title="KEY NAME"
+            app:iconSpaceReserved="false"
+            android:summary="KEY NAME value of the DDNA Studio project's Connection Configuration. This will be used to generate a self signed JWT token for connecting."
+            android:key="connectionConfigKeyName"
+            android:defaultValue=""/>
+
+        <EditTextPreference
+            android:title="PRIVATE KEY"
+            app:iconSpaceReserved="false"
+            android:summary="PRIVATE KEY value of the DDNA Studio project's Connection Configuration. This will be used to generate a self signed JWT token for connecting."
+            android:key="connectionConfigPrivateKey"
+            android:defaultValue=""/>
+
+        <SwitchPreferenceCompat
+            app:iconSpaceReserved="false"
+            app:key="useOrchestrationServer"
+            app:title="Enable Orchestration Server"
+            />
+
+        <EditTextPreference
+            app:iconSpaceReserved="false"
+            android:title="Orchestration Server URL"
+            android:summary="URL prefixed with wss://"
+            android:key="orchestrationServerURL"
+            android:dependency="useOrchestrationServer"
+            android:defaultValue=""
+            />
+
+        <SwitchPreferenceCompat
+            app:iconSpaceReserved="false"
+            app:key="useExistingJWTToken"
+            app:title="Use an existing JWT Access Token"
+            />
+
+        <EditTextPreference
+            app:iconSpaceReserved="false"
+            android:title="JWT Token"
+            android:summary="The existing JWT Access Token to use. The Keys above will be ignored."
+            android:key="connectionConfigJWT"
+            android:dependency="useExistingJWTToken"
+            android:defaultValue=""
+            />
+    </PreferenceCategory>
+
+    <Preference
+        app:iconSpaceReserved="false"
+        app:title="Close"
+        app:key="applyChanges"/>
+
+</PreferenceScreen>
