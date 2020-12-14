@@ -15,6 +15,7 @@ import android.view.View
 import android.view.Window
 import android.view.WindowManager
 import android.widget.Toast
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.preference.PreferenceManager
@@ -33,6 +34,7 @@ import com.soulmachines.android.smsdk.core.websocket_message.scene.event.Convers
 import com.soulmachines.android.smsdk.core.websocket_message.scene.event.RecognizeResultsEventBody
 import com.soulmachines.android.smsdk.core.websocket_message.scene.event.StateEventBody
 import java.lang.Math.abs
+import java.util.ArrayList
 
 
 class MainActivity : AppCompatActivity() {
@@ -289,13 +291,14 @@ class MainActivity : AppCompatActivity() {
     //endregion Scene Usage Example (Change Camera View)
 
     // region Go Fullscreen
+    @RequiresApi(11)
     private fun goFullScreen() {
         // Set window styles for fullscreen-window size. Needs to be done before
         // adding content.
         // Set window styles for fullscreen-window size. Needs to be done before
         // adding content.
         requestWindowFeature(Window.FEATURE_NO_TITLE)
-        window.addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN or WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON or WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED or WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON)
+        window.addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN or WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON or WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON)
         window.decorView.systemUiVisibility = getSystemUiVisibility()
     }
     @TargetApi(19)
