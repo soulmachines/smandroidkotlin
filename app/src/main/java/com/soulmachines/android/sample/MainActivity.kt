@@ -41,15 +41,15 @@ class MainActivity : AppCompatActivity() {
 
     val TAG = "MainActivity"
 
-    private val PERMISSION_REQUEST = 2
+    private val PERMISSIONS_REQUEST = 2
 
     private var micEnabled: Boolean = true
 
     lateinit var binding: ActivityMainBinding
 
-    lateinit var preferences: SharedPreferences
+    private lateinit var preferences: SharedPreferences
 
-    var scene: Scene? = null
+    private var scene: Scene? = null
 
     enum class CameraViewDirection {
         Left,
@@ -117,11 +117,11 @@ class MainActivity : AppCompatActivity() {
 
         setupMicButton()
 
-        setupchangeCameraViewButtons()
+        setupChangeCameraViewButtons()
 
     }
 
-    fun openSettingsPage() {
+    private fun openSettingsPage() {
         //display the Preference screen and ask them and ask them to populate the required
         //settings before we can let them connect
         val intent = Intent(this@MainActivity as Context, SettingsActivity::class.java)
@@ -131,7 +131,7 @@ class MainActivity : AppCompatActivity() {
     //endregion Setup Activity UI
 
     //region Scene/Session Connection Usage Example
-    fun connect() {
+    private fun connect() {
 
         if(!hasRequiredConfiguration()) {
             openSettingsPage()
@@ -162,17 +162,17 @@ class MainActivity : AppCompatActivity() {
     private fun connectScene(connectionUrl: String, jwtToken: String) {
         scene?.connect(url = connectionUrl, accessToken = jwtToken)!!.subscribe(
             object : Completion<SessionInfo> {
-                override fun onSuccess(session: SessionInfo) {
+                override fun onSuccess(result: SessionInfo) {
                     runOnUiThread {
                         onConnectedUI()
                     }
                 }
 
-                override fun onError(errorMessage: CompletionError) {
+                override fun onError(error: CompletionError) {
                     runOnUiThread {
                         displayAlertAndResetUI(
                             getString(R.string.connection_error),
-                            errorMessage?.getMessage() ?: "Unknown error"
+                            error.getMessage()
                         )
                     }
                 }
@@ -199,13 +199,13 @@ class MainActivity : AppCompatActivity() {
 
     //region SpeechRecognizer Usage Example (Mute Button Implementation)
 
-    fun setupMicButton() {
+    private fun setupMicButton() {
         binding.microphone.setOnClickListener { toggleMic() }
         binding.microphone.isSelected = micEnabled
 
     }
 
-    fun toggleMic() {
+    private fun toggleMic() {
         val shouldEnableMic = !micEnabled
 
         // this example changes the mic mute button state after the async call has succeeded
@@ -253,7 +253,7 @@ class MainActivity : AppCompatActivity() {
     //region Scene Usage Example (Change Camera View)
 
 
-    private fun setupchangeCameraViewButtons() {
+    private fun setupChangeCameraViewButtons() {
         binding.lookToTheLeftButton.setOnClickListener {
             changeCameraView(CameraViewDirection.Left)
         }
@@ -267,10 +267,10 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    fun changeCameraView(direction: CameraViewDirection) {
-        scene?.getPersonas()?.first()?.let {persona ->
-            showToastMessage("Changing camera view to the ${direction}")
-            Log.i(TAG, "CameraView: ${direction}")
+    private fun changeCameraView(direction: CameraViewDirection) {
+        scene?.getPersonas()?.first()?.let { persona ->
+            showToastMessage("Changing camera view to the $direction")
+            Log.i(TAG, "CameraView: $direction")
             persona.animateToNamedCameraWithOrbitPan(getNamedCameraAnimationParam(direction))
         }
     }
@@ -298,22 +298,20 @@ class MainActivity : AppCompatActivity() {
         // Set window styles for fullscreen-window size. Needs to be done before
         // adding content.
         requestWindowFeature(Window.FEATURE_NO_TITLE)
-        window.addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN or WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON or WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON)
+        window.addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN or WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         window.decorView.systemUiVisibility = getSystemUiVisibility()
     }
     @TargetApi(19)
     private fun getSystemUiVisibility(): Int {
         var flags = View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or View.SYSTEM_UI_FLAG_FULLSCREEN
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            flags = flags or View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
-        }
+        flags = flags or View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
         return flags
     }
     //endregion Go Fullscreen
 
     //region Setup Permissions
     private fun onPermissionsGranted() {
-        connect();
+        connect()
     }
 
     override fun onRequestPermissionsResult(
@@ -324,13 +322,13 @@ class MainActivity : AppCompatActivity() {
 
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
 
-        if (requestCode == PERMISSION_REQUEST) {
+        if (requestCode == PERMISSIONS_REQUEST) {
             val missingPermissions = getMissingPermissions()
-            if (missingPermissions.size != 0) {
+            if (missingPermissions.isNotEmpty()) {
                 // User didn't grant all the permissions. Warn that the application might not work
                 // correctly.
                 AlertDialog.Builder(this).setMessage(R.string.missing_permissions_message)
-                    .setPositiveButton(R.string.close) { dialog, id ->
+                    .setPositiveButton(R.string.close) { dialog, _ ->
                         dialog.cancel()
                     }.show()
             } else {
@@ -342,14 +340,9 @@ class MainActivity : AppCompatActivity() {
 
     @TargetApi(Build.VERSION_CODES.M)
     private fun connectRequestingPermissionsIfNeeded() {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
-            // Dynamic permissions are not required before Android M.
-            onPermissionsGranted()
-            return
-        }
         val missingPermissions = getMissingPermissions()
-        if (missingPermissions.size != 0) {
-            requestPermissions(missingPermissions, PERMISSION_REQUEST)
+        if (missingPermissions.isNotEmpty()) {
+            requestPermissions(missingPermissions, PERMISSIONS_REQUEST)
         } else {
             onPermissionsGranted()
         }
@@ -357,11 +350,7 @@ class MainActivity : AppCompatActivity() {
 
     @TargetApi(Build.VERSION_CODES.M)
     private fun getMissingPermissions(): Array<String?> {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
-            return arrayOfNulls(0)
-        }
-        val info: PackageInfo
-        info = try {
+        val info: PackageInfo = try {
             packageManager.getPackageInfo(packageName, PackageManager.GET_PERMISSIONS)
         } catch (e: PackageManager.NameNotFoundException) {
             Log.w(TAG, "Failed to retrieve permissions.")
@@ -383,25 +372,25 @@ class MainActivity : AppCompatActivity() {
     //endregion Setup Permissions
 
     //region UI Behaviour
-    fun resetViewUI() {
+    private fun resetViewUI() {
         binding.connectButtonContainer.visibility = View.VISIBLE
-        binding.connectButton.setEnabled(true)
+        binding.connectButton.isEnabled = true
 
         binding.disconnectButtonContainer.visibility = View.GONE
-        binding.disconnectButton.setEnabled(true)
+        binding.disconnectButton.isEnabled = true
 
 
         binding.settingsButton.visibility = View.VISIBLE
-        binding.settingsButton.setEnabled(true)
+        binding.settingsButton.isEnabled = true
 
         binding.microphone.hide()
 
         binding.cameraViewsContainer.visibility = View.INVISIBLE
     }
 
-    fun onDisconnectingUI() {
+    private fun onDisconnectingUI() {
         binding.disconnectButtonContainer.visibility = View.VISIBLE
-        binding.disconnectButton.setEnabled(false)
+        binding.disconnectButton.isEnabled = false
         binding.microphone.hide()
     }
 
@@ -412,19 +401,19 @@ class MainActivity : AppCompatActivity() {
         }, 100)
     }
 
-    fun onConnectingUI() {
+   private fun onConnectingUI() {
         Toast.makeText(this, "Connecting, please wait...", Toast.LENGTH_LONG).show()
         binding.connectButtonContainer.visibility = View.VISIBLE
-        binding.connectButton.setEnabled(false)
+        binding.connectButton.isEnabled = false
 
         binding.settingsButton.visibility = View.GONE
-        binding.settingsButton.setEnabled(false)
+        binding.settingsButton.isEnabled = false
     }
 
     fun onConnectedUI() {
         binding.connectButtonContainer.visibility = View.GONE
         binding.disconnectButtonContainer.visibility = View.VISIBLE
-        binding.disconnectButton.setEnabled(true)
+        binding.disconnectButton.isEnabled = true
 
         binding.settingsButton.visibility = View.GONE
 
@@ -438,7 +427,7 @@ class MainActivity : AppCompatActivity() {
         AlertDialog.Builder(this)
             .setTitle(title)
             .setMessage(alertMessage).setCancelable(false)
-            .setPositiveButton(R.string.ok) { dialog, id ->
+            .setPositiveButton(R.string.ok) { dialog, _ ->
                 dialog.cancel()
                 resetViewUI()
             }

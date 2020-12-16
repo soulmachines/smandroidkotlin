@@ -1,6 +1,7 @@
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
+apply plugin: 'kotlin-kapt'
 
 android {
 
@@ -46,11 +47,10 @@ repositories {
 }
 
 ext {
-
-    constraintlayout = "1.1.3"
-    googleMaterialUILib = "1.0.0"
+    constraintlayout = "2.0.4"
+    googleMaterialUILib = "1.2.1"
     jjwtVersion = "0.11.2"
-    androidXPreference = "1.1.0"
+    androidXPreference = "1.1.1"
     coreKtxVersion = "1.3.2"
     appCompatVersion = "1.2.0"
     androidXLegacySupport = "legacy-support-v4:1.0.0"
@@ -76,7 +76,7 @@ dependencies {
     implementation "androidx.fragment:fragment-ktx:$androidXFragmentVersion"
     implementation "androidx.savedstate:savedstate-ktx:$androidXSavedStateVersion"
     implementation "androidx.constraintlayout:constraintlayout:$constraintlayout"
-    implementation "androidx.preference:preference:$androidXPreference"
+    implementation "androidx.preference:preference-ktx:$androidXPreference"
     implementation "com.google.android.material:material:$googleMaterialUILib"
 
 
