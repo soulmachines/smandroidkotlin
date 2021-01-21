@@ -27,7 +27,7 @@ import com.soulmachines.android.smsdk.core.async.CompletionError
 import com.soulmachines.android.smsdk.core.scene.DisconnectedEventListener
 import com.soulmachines.android.smsdk.core.scene.NamedCameraAnimationParam
 import com.soulmachines.android.smsdk.core.scene.Scene
-import com.soulmachines.android.smsdk.core.scene.SceneImpl
+import com.soulmachines.android.smsdk.core.scene.SceneFactory
 import com.soulmachines.android.smsdk.core.scene.message.SceneEventMessage
 import com.soulmachines.android.smsdk.core.scene.message.SceneMessageListener
 import com.soulmachines.android.smsdk.core.websocket_message.scene.event.ConversationResultEventBody
@@ -78,7 +78,7 @@ class MainActivity : AppCompatActivity() {
             disconnect()
         }
 
-        scene = SceneImpl(this, UserMedia.MicrophoneAndCamera)
+        scene = SceneFactory.create(this, UserMedia.MicrophoneAndCamera)
         scene!!.setViews(binding.fullscreenPersonaView, binding.pipLocalVideoView)
 
         scene!!.addDisconnectedEventListener(object : DisconnectedEventListener {
