@@ -38,11 +38,7 @@ android {
 
 repositories {
     maven {
-        url "s3://sm-maven-repo-bucket.s3.amazonaws.com"
-        credentials(AwsCredentials) {
-            accessKey "REPLACE_WITH_YOUR_ACCESS_KEY"
-            secretKey "REPLACE_WITH_YOUR_SECRET_KEY"
-        }
+        url "https://sm-maven-repo-bucket.s3.amazonaws.com"
     }
 }
 

@@ -5,13 +5,7 @@ This project shows how to use the Soul Machines Android SDK and pull the library
 
 # Project Setup
  * Open/import this project in Android Studio as a gradle project.
- * Open the `build.gradle` in the root of the project and replace the following with your provided access keys:
- ```
-   accessKey "REPLACE_WITH_YOUR_ACCESS_KEY" 
-   secretKey "REPLACE_WITH_YOUR_SECRET_KEY"   
-```
-
- * Android Studio will display a banner at the top of the window *"Gradle files have changed. since last project sync."* and will ask you to `Sync Now`. Click `Sync Now` and it should now download all the dependencies.
+ * Build the project and it should now download all the dependencies.
 
 
 # Importing the library
@@ -20,11 +14,7 @@ To import the library into your own project, add the following entries to the `a
 ```
  repositories {       
 	 maven {    
-          url "s3://sm-maven-repo-bucket.s3.amazonaws.com"    
-          credentials(AwsCredentials) {    
-             accessKey "REPLACE_WITH_YOUR_ACCESS_KEY"    
-             secretKey "REPLACE_WITH_YOUR_SECRET_KEY"    
-          }    
+          url "https://sm-maven-repo-bucket.s3.amazonaws.com"
     }    
 }
 ```
