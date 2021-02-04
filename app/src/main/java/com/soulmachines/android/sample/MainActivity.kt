@@ -20,7 +20,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.preference.PreferenceManager
 import com.soulmachines.android.sample.databinding.ActivityMainBinding
-import com.soulmachines.android.smsdk.core.Session.SessionInfo
+import com.soulmachines.android.smsdk.core.SessionInfo
 import com.soulmachines.android.smsdk.core.UserMedia
 import com.soulmachines.android.smsdk.core.async.Completion
 import com.soulmachines.android.smsdk.core.async.CompletionError

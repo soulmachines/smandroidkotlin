@@ -117,8 +117,8 @@ Here's an example of a subscription to the scene connection result:
 ```
 scene?.connect(url = getString(R.string.connection_url), accessToken = getString(R.string.connection_access_token))!!
 	.subscribe(
-	    object : Completion<Session> {
-	        override fun onSuccess(session: Session) {
+	    object : Completion<SessionInfo> {
+	        override fun onSuccess(sessionInfo: SessionInfo) {
 	            runOnUiThread { onConnectedUI()}
 	        }
 	        override fun onError(errorMessage: CompletionError) {
