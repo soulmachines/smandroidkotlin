@@ -9,7 +9,8 @@ This project shows how to use the Soul Machines Android SDK and pull the library
 
 
 # Importing the library
- **Add the maven repository**  
+
+**Add the maven repository**
 To import the library into your own project, add the following entries to the `app/build.gradle` file and remember to replace with your provided keys
 ```
  repositories {       
@@ -18,13 +19,31 @@ To import the library into your own project, add the following entries to the `a
     }    
 }
 ```
-  **Import the library**  
+
+**Import the library**
   Add the following dependencies to the `app/build.gradle`
 ```
  dependencies {        
 	 implementation 'com.soulmachines.android:smsdk-core:1.0.0'    
 }
 ```
+
+**Library Documentation**
+Documentation for the core sdk is included and should l be available here 'app/build/docs/smsdk-core/index.html' after running the task below:
+
+```
+./gradlew app:getSmSdkDocumentation
+```
+
+In the `app/build.gradle` there is a gradle 'documentation' configuration specified as well as a dependency using this
+configuration. This is used by the getSmSdkDocumentation task to extract the supplied documentation.
+
+```
+ dependencies {
+	 documentation 'com.soulmachines.android:smsdk-core:1.0.0:docs@zip'
+}
+```
+
 
 # Create and connect the Scene
  ## Using View Containers

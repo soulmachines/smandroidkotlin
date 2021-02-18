@@ -42,6 +42,11 @@ repositories {
     }
 }
 
+// SM SDK Documentation Task/Dependency
+configurations {
+    documentation
+}
+
 ext {
     constraintlayout = "2.0.4"
     googleMaterialUILib = "1.2.1"
@@ -75,8 +80,21 @@ dependencies {
     implementation "androidx.preference:preference-ktx:$androidXPreference"
     implementation "com.google.android.material:material:$googleMaterialUILib"
 
-
-
+    // dependency for the Soul Machine's Core SDK
     implementation 'com.soulmachines.android:smsdk-core:1.0.0-SNAPSHOT'
 
+    // dependency for the Soul Machine's Core SDK Documentation.
+    // The documentation (smsdk-core/index.html)
+    // can be extracted using the gradle task shown below: [getSmSdkDocumentation].
+    documentation 'com.soulmachines.android:smsdk-core:1.0.0-SNAPSHOT:docs@zip'
+
+}
+
+
+task getSmSdkDocumentation(type: Sync) {
+    dependsOn configurations.documentation
+    from {
+        configurations.documentation.collect { zipTree(it) }
+    }
+    into "$buildDir/docs/"
 }
