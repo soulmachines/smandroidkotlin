@@ -81,12 +81,12 @@ dependencies {
     implementation "com.google.android.material:material:$googleMaterialUILib"
 
     // dependency for the Soul Machine's Core SDK
-    implementation 'com.soulmachines.android:smsdk-core:1.0.0'
+    implementation 'com.soulmachines.android:smsdk-core:1.0.3'
 
     // dependency for the Soul Machine's Core SDK Documentation.
     // The documentation (smsdk-core/index.html)
     // can be extracted using the gradle task shown below: [getSmSdkDocumentation].
-    documentation 'com.soulmachines.android:smsdk-core:1.0.0:docs@zip'
+    documentation 'com.soulmachines.android:smsdk-core:1.0.3:docs@zip'
 
 }
 

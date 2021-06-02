@@ -24,10 +24,7 @@ import com.soulmachines.android.smsdk.core.SessionInfo
 import com.soulmachines.android.smsdk.core.UserMedia
 import com.soulmachines.android.smsdk.core.async.Completion
 import com.soulmachines.android.smsdk.core.async.CompletionError
-import com.soulmachines.android.smsdk.core.scene.DisconnectedEventListener
-import com.soulmachines.android.smsdk.core.scene.NamedCameraAnimationParam
-import com.soulmachines.android.smsdk.core.scene.Scene
-import com.soulmachines.android.smsdk.core.scene.SceneFactory
+import com.soulmachines.android.smsdk.core.scene.*
 import com.soulmachines.android.smsdk.core.scene.message.SceneEventMessage
 import com.soulmachines.android.smsdk.core.scene.message.SceneMessageListener
 import com.soulmachines.android.smsdk.core.websocket_message.scene.event.ConversationResultEventBody
@@ -50,6 +47,8 @@ class MainActivity : AppCompatActivity() {
     private lateinit var preferences: SharedPreferences
 
     private var scene: Scene? = null
+
+    private var persona: Persona? = null
 
     enum class CameraViewDirection {
         Left,
@@ -112,6 +111,12 @@ class MainActivity : AppCompatActivity() {
 //                super.onRecognizeResultsMessage(sceneEventMessage)
 //            }
 //        })
+
+        scene!!.addPersonaReadyListener(object: PersonaReadyListener {
+            override fun onPersonaReady(p: Persona) {
+                persona = p
+            }
+        })
 
         resetViewUI()
 
@@ -268,10 +273,10 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun changeCameraView(direction: CameraViewDirection) {
-        scene?.getPersonas()?.first()?.let { persona ->
+        persona?.let { it ->
             showToastMessage("Changing camera view to the $direction")
             Log.i(TAG, "CameraView: $direction")
-            persona.animateToNamedCameraWithOrbitPan(getNamedCameraAnimationParam(direction))
+            it.animateToNamedCameraWithOrbitPan(getNamedCameraAnimationParam(direction))
         }
     }
 
