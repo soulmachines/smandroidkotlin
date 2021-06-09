@@ -12,7 +12,7 @@ This project shows how to use the Soul Machines Android SDK and pull the library
 
 **Add the maven repository**
 
-To import the library into your own project, add the following entries to the `app/build.gradle` file and remember to replace with your provided keys
+To import the library into your own project, add the following entries to the `app/build.gradle` file.
 ```
  repositories {       
 	 maven {    
@@ -26,7 +26,7 @@ To import the library into your own project, add the following entries to the `a
   Add the following dependencies to the `app/build.gradle`
 ```
  dependencies {        
-	 implementation 'com.soulmachines.android:smsdk-core:1.0.0'    
+	 implementation 'com.soulmachines.android:smsdk-core:1.0.3'    
 }
 ```
 
@@ -43,7 +43,7 @@ configuration. This is used by the `getSmSdkDocumentation` task to extract the s
 
 ```
  dependencies {
-	 documentation 'com.soulmachines.android:smsdk-core:1.0.0:docs@zip'
+	 documentation 'com.soulmachines.android:smsdk-core:1.0.3:docs@zip'
 }
 ```
 
