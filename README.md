@@ -119,7 +119,7 @@ configuration. This is used by the `getSmSdkDocumentation` task to extract the s
  * Create a **Scene** object and specify the required **UserMedia**  
 and then set the views on the Scene but use the instance of the custom layout you've defined.
  ```
- scene = SceneImpl(this, UserMedia.MicrophoneAndCamera)      
+ scene = SceneFactory.create(this, UserMedia.MicrophoneAndCamera)      
  scene!!.setViews(binding.scene, binding.scene)    
  ```
  *In the snippet above, it uses the same custom layout for both the remote and local video feeds, but you can specify a separate one for each as long as you use the correct predefined id for the corresponding child video view*
