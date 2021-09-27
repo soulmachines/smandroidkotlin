@@ -495,10 +495,7 @@ class MainActivity : AppCompatActivity() {
                 val randomW = Math.max(100, ran.nextInt(200))
                 val randomH = Math.max(100, ran.nextInt(200))
                 showContentView(e.rawX.toInt(), e.rawY.toInt(), randomW, randomH)
-                val bounds = Rect(
-                    e.rawX.toInt(),
-                    e.rawY.toInt(), e.rawX.toInt() + randomW, e.rawY.toInt() + randomH
-                )
+                val bounds = Rect(e.rawX.toInt(), e.rawY.toInt(), e.rawX.toInt() + randomW, e.rawY.toInt() + randomH)
                 val content: Content = ContentImpl(bounds)
                 scene!!.getContentAwareness().addContent(content)
                 scene!!.getContentAwareness().syncContentAwareness()
