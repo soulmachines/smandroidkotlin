@@ -257,7 +257,7 @@ To be added to the `ContentAwareness`, objects need to inherit from `Content`. T
 
 This information is as follows:
 - `getId`: A unique identifier for the content. Content with duplicate ID will replace each other. Note that if the ID matches the id provided to `showcards(id)`, the Persona will gesture at the content.
-- `getRect`: A `PointRect` of the coordinates the content exists at. This is made up of  `x1, x2, y1, y2`.
+- `getRect`: A `Rect` of the coordinates the content exists at. This is made up of  `x1, x2, y1, y2`.
 - `getMeta`: A dictionary of metadata to associate with the `Content`.
 
 See below for examples.
