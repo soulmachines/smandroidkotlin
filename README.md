@@ -26,7 +26,7 @@ To import the library into your own project, add the following entries to the `a
   Add the following dependencies to the `app/build.gradle`
 ```
  dependencies {        
-	 implementation 'com.soulmachines.android:smsdk-core:1.0.3'    
+	 implementation 'com.soulmachines.android:smsdk-core:1.1.0'    
 }
 ```
 
@@ -43,7 +43,7 @@ configuration. This is used by the `getSmSdkDocumentation` task to extract the s
 
 ```
  dependencies {
-	 documentation 'com.soulmachines.android:smsdk-core:1.0.3:docs@zip'
+	 documentation 'com.soulmachines.android:smsdk-core:1.1.0:docs@zip'
 }
 ```
 
@@ -225,4 +225,101 @@ val animation = NamedCameraAnimationParam(
             panDeg = 2f,
             tiltDeg = 0f)
 persona.animateToNamedCameraWithOrbitPan(animation)
+```
+## Feature Flags
+
+The `Scene` contains a `Features` object populated shortly after the connection has established. This can be checked to determine whether any DDNA Studio level `FeatureFlags` have been enabled on the `Persona`. Supported `FeatureFlags` are found within the SDK documentation.
+
+```
+val isContentAwarenessSupported = scene!!.getFeatures().isFeatureEnabled(FeatureFlags.UI_CONTENT_AWARENESS)
+```
+
+## Content Awareness
+
+If the `Persona` has the Content Awareness `FeatureFlag`  enabled in DDNA Studio, classes inheriting from `Content` can be added to the `Scene.getContentAwareness()`. When executing `ContentAwareness.syncContentAwareness()`, these coordinates will be sent to the `Persona`, and it will glance or move out of the way of content as appropriate. 
+
+To add a `Content` item to the `ContentAwareness`, call `Scene.getContentAwareness().addContent(content: Content)`. Content can be removed either by reference or by its String id.
+
+Example:
+```
+val bounds = Rect(x, y, width, height)
+val content: Content = ContentImpl(bounds)
+scene!!.getContentAwareness().addContent(content)
+scene!!.getContentAwareness().syncContentAwareness()
+```
+### Content Inheritance
+
+To be added to the `ContentAwareness`, objects need to inherit from `Content`. This ensures that conforming items provide the necessary information for the `Persona` to be aware of their frames within the App or you can call `removeAllContent` to remove all contents.
+
+This information is as follows:
+- `getId`: A unique identifier for the content. Content with duplicate ID will replace each other. Note that if the ID matches the id provided to `showcards(id)`, the Persona will gesture at the content.
+- `getRect`: A `Rect` of the coordinates the content exists at. This is made up of  `x1, x2, y1, y2`.
+- `getMeta`: A dictionary of metadata to associate with the `Content`.
+
+See below for examples.
+
+```
+class ContentImpl(private val bounds: Rect) : Content {
+    private val id = "object-" + Integer.toString(uniqueId++)
+    override fun getId(): String {
+        return id
+    }
+
+    override fun getMeta(): Map<String, Any>? {
+        return null
+    }
+
+    override fun getRect(): Rect {
+        return bounds
+    }
+
+    companion object {
+        var uniqueId = 1
+    }
+}
+```
+### Example
+
+```
+Note that positions are absolute, and should be determined based on the root view when getBounds() is called. 
+- '==' and '||' demonstrates the frame of the App Window.
+- '--' and '|' demonstrates the frame of the Remote View.
+- '<n>' demonstrates a Content instance.
+
+======================
+||  --------------  ||
+||  | <1> _      |  ||
+||  |    / \     |  ||
+||  |    \_/  <2>|  ||
+||  |   __^__    |  ||
+||  |  /     \   |  ||
+||  | /       \  |  ||
+||  --------------  ||
+||        <3>       ||
+======================
+Approx example coordinates
+<1> x1: 100, y1: 100, x2: 150, y2: 150
+- As this content is displayed within the frame of the Remote View, if Content Awareness is enabled it will cut to a different position to attempt to prevent the content appearing on top of the Persona. If the Id of the Content is referenced in conversation, the Persona will gesture at the coordinates.
+
+<2> x1: 300, y1: 200, x2: 350, y1: 250
+- As this content is displayed within the frame of the Remote View, if Content Awareness is enabled it will cut to a different position to attempt to prevent the content appearing on top of the Persona. If the Id of the Content is referenced in conversation, the Persona will gesture at the coordinates.
+
+<3> x1: 200, y1: 400, x2: 250, y2: 450
+- As this coordinate is outside of the Remote View, the Persona will not need to avoid this.
+
+=====================================
+||   ____________________          ||
+||  |     _             |   <2>    ||
+||  |    / \            |          ||
+||  |    \_/     <1>    |          ||
+||  |   __^__           |          ||
+||  |  /     \          |          ||
+||  |_/_______\_________|          ||
+=====================================
+Approx example coordinates
+<1> x1: 300, y1: 150, x2: 350, y2: 200
+- As this coordinate is possible to overlap the Persona, if Content Awareness is enabled it will cut to a different position to attempt to prevent the content appearing on top of the Persona. If the Id of the Content is referenced in conversation, the Persona will gesture at the coordinates.
+
+<2> x1: 450, y1: 100, x2: 500, y2: 150
+- As this coordinate is outside of the Remote View, the Persona will not need to avoid this.
 ```

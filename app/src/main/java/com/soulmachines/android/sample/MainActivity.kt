@@ -7,10 +7,12 @@ import android.content.Intent
 import android.content.SharedPreferences
 import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
+import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.util.Log
+import android.view.MotionEvent
 import android.view.View
 import android.view.Window
 import android.view.WindowManager
@@ -31,7 +33,10 @@ import com.soulmachines.android.smsdk.core.websocket_message.scene.event.Convers
 import com.soulmachines.android.smsdk.core.websocket_message.scene.event.RecognizeResultsEventBody
 import com.soulmachines.android.smsdk.core.websocket_message.scene.event.StateEventBody
 import java.lang.Math.abs
-import java.util.ArrayList
+import android.widget.RelativeLayout
+
+import android.util.TypedValue
+import java.util.*
 
 
 class MainActivity : AppCompatActivity() {
@@ -49,6 +54,10 @@ class MainActivity : AppCompatActivity() {
     private var scene: Scene? = null
 
     private var persona: Persona? = null
+
+    private var showContentClicked = false
+
+    private val ran = Random()
 
     enum class CameraViewDirection {
         Left,
@@ -124,6 +133,7 @@ class MainActivity : AppCompatActivity() {
 
         setupChangeCameraViewButtons()
 
+        binding.showContentButton.setOnClickListener { v -> toggleContent() }
     }
 
     private fun openSettingsPage() {
@@ -200,6 +210,17 @@ class MainActivity : AppCompatActivity() {
         onDisconnectingUI()
         scene?.disconnect()
     }
+
+    private fun toggleContent() {
+        showContentClicked = !showContentClicked
+        binding.contentView.visibility = View.GONE
+        if (!showContentClicked) {
+            scene!!.getContentAwareness().removeAllContent()
+            scene!!.getContentAwareness().syncContentAwareness()
+        }
+        binding.showContentButton.setImageResource(if (showContentClicked) R.drawable.ic_nocontent else R.drawable.ic_content)
+    }
+
     //endregion Scene/Session Connection Usage Example
 
     //region SpeechRecognizer Usage Example (Mute Button Implementation)
@@ -384,6 +405,8 @@ class MainActivity : AppCompatActivity() {
         binding.disconnectButtonContainer.visibility = View.GONE
         binding.disconnectButton.isEnabled = true
 
+        binding.showContentButton.visibility = View.GONE
+        binding.showContentButton.isEnabled = false
 
         binding.settingsButton.visibility = View.VISIBLE
         binding.settingsButton.isEnabled = true
@@ -425,6 +448,13 @@ class MainActivity : AppCompatActivity() {
         binding.microphone.show()
 
         binding.cameraViewsContainer.visibility = View.VISIBLE
+
+        // Determine if Content Awareness is supported. See the Content Awareness section for more information on Content Awareness.
+        val isContentAwarenessSupported = scene!!.getFeatures().isFeatureEnabled(FeatureFlags.UI_CONTENT_AWARENESS)
+        if (isContentAwarenessSupported) {
+            binding.showContentButton.visibility = View.VISIBLE
+            binding.showContentButton.isEnabled = true
+        }
     }
 
 
@@ -441,6 +471,37 @@ class MainActivity : AppCompatActivity() {
 
     private fun showToastMessage(message: String) {
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
+    }
+
+    private fun PixelToDip(pixel: Int): Int {
+        val r = resources
+        return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_PX, pixel.toFloat(), r.getDisplayMetrics()).toInt()
+    }
+
+    private fun showContentView(rawX: Int, rawY: Int, randomW: Int, randomH: Int) {
+        binding.contentView.visibility = View.VISIBLE
+        binding.contentView.setBackgroundColor(Color.RED)
+        val params = RelativeLayout.LayoutParams(randomW, randomH)
+        params.leftMargin = PixelToDip(rawX - randomW / 2)
+        params.topMargin = PixelToDip(rawY - randomH / 2)
+        binding.contentView.layoutParams = params
+        binding.contentView.width = PixelToDip(randomW)
+        binding.contentView.height = PixelToDip(randomH)
+    }
+
+    override fun onTouchEvent(e: MotionEvent): Boolean {
+        when (e.action) {
+            MotionEvent.ACTION_UP -> if (showContentClicked) {
+                val randomW = Math.max(100, ran.nextInt(200))
+                val randomH = Math.max(100, ran.nextInt(200))
+                showContentView(e.rawX.toInt(), e.rawY.toInt(), randomW, randomH)
+                val bounds = Rect(e.rawX.toInt(), e.rawY.toInt(), e.rawX.toInt() + randomW, e.rawY.toInt() + randomH)
+                val content: Content = ContentImpl(bounds)
+                scene!!.getContentAwareness().addContent(content)
+                scene!!.getContentAwareness().syncContentAwareness()
+            }
+        }
+        return super.onTouchEvent(e)
     }
 
     //endregion UI Behaviour
