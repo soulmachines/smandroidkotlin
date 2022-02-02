@@ -1,5 +1,6 @@
 package com.soulmachines.android.sample
 
+import android.Manifest
 import android.annotation.TargetApi
 import android.app.AlertDialog
 import android.content.Context
@@ -8,9 +9,12 @@ import android.content.SharedPreferences
 import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
 import android.graphics.Color
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
+import android.provider.Settings
+import android.text.Html
 import android.util.Log
 import android.view.MotionEvent
 import android.view.View
@@ -36,6 +40,8 @@ import java.lang.Math.abs
 import android.widget.RelativeLayout
 
 import android.util.TypedValue
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import java.util.*
 
 
@@ -43,6 +49,8 @@ class MainActivity : AppCompatActivity() {
 
     val TAG = "MainActivity"
 
+    private val PERMISSION_DONT_ASK_AGAIN_FLAG = "PERMISSION_DONT_ASK_AGAIN_FLAG"
+    private val PERMISSION_REQUEST_UPDATE_USER_MEDIA = 101
     private val PERMISSIONS_REQUEST = 2
 
     private var micEnabled: Boolean = true
@@ -57,6 +65,8 @@ class MainActivity : AppCompatActivity() {
 
     private var showContentClicked = false
 
+    var continueAndDontAskPermissionAgain = false
+
     private val ran = Random()
 
     enum class CameraViewDirection {
@@ -64,10 +74,12 @@ class MainActivity : AppCompatActivity() {
         Center,
         Right
     }
+    private var userMedia = UserMedia.None
 
     //region Setup Activity UI
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        continueAndDontAskPermissionAgain = savedInstanceState?.getBoolean(PERMISSION_DONT_ASK_AGAIN_FLAG) ?: false
 
         preferences = PreferenceManager.getDefaultSharedPreferences(this as Context)
 
@@ -76,7 +88,7 @@ class MainActivity : AppCompatActivity() {
 
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
         binding.connectButton.setOnClickListener {
-            connectRequestingPermissionsIfNeeded()
+            connect()
         }
         binding.settingsButton.setOnClickListener {
             openSettingsPage()
@@ -86,7 +98,7 @@ class MainActivity : AppCompatActivity() {
             disconnect()
         }
 
-        scene = SceneFactory.create(this, UserMedia.MicrophoneAndCamera)
+        scene = SceneFactory.create(this, userMedia)
         scene!!.setViews(binding.fullscreenPersonaView, binding.pipLocalVideoView)
 
         scene!!.addDisconnectedEventListener(object : DisconnectedEventListener {
@@ -129,7 +141,7 @@ class MainActivity : AppCompatActivity() {
 
         resetViewUI()
 
-        setupMicButton()
+        setupVideoMicToggleButtons()
 
         setupChangeCameraViewButtons()
 
@@ -141,6 +153,16 @@ class MainActivity : AppCompatActivity() {
         //settings before we can let them connect
         val intent = Intent(this@MainActivity as Context, SettingsActivity::class.java)
         startActivity(intent)
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putBoolean(PERMISSION_DONT_ASK_AGAIN_FLAG, continueAndDontAskPermissionAgain)
+    }
+
+    override fun onRestoreInstanceState(savedInstanceState: Bundle) {
+        super.onRestoreInstanceState(savedInstanceState)
+        continueAndDontAskPermissionAgain = savedInstanceState.getBoolean(PERMISSION_DONT_ASK_AGAIN_FLAG)
     }
 
     //endregion Setup Activity UI
@@ -223,15 +245,50 @@ class MainActivity : AppCompatActivity() {
 
     //endregion Scene/Session Connection Usage Example
 
-    //region SpeechRecognizer Usage Example (Mute Button Implementation)
+    //region Video/Audio Toggle Example
 
-    private fun setupMicButton() {
-        binding.microphone.setOnClickListener { toggleMic() }
-        binding.microphone.isSelected = micEnabled
+    private fun setupVideoMicToggleButtons() {
+        //toggle the state
+        binding.microphoneToggle.setOnClickListener {
+            it.isSelected = !it.isSelected
+            //fire the change event
+            videoAudioActiveChanged()
+        }
+        binding.videoToggle.setOnClickListener {
+            it.isSelected = !it.isSelected
+            //fire the change event
+            videoAudioActiveChanged()
+        }
 
     }
 
-    private fun toggleMic() {
+    private fun videoAudioActiveChanged() {
+        val isMicEnabled = binding.microphoneToggle.isSelected
+        val isVideoEnabled = binding.videoToggle.isSelected
+        val requestedUserMedia = when {
+            isMicEnabled && isVideoEnabled ->  UserMedia.MicrophoneAndCamera
+            !isMicEnabled && isVideoEnabled -> UserMedia.Camera
+            isMicEnabled && !isVideoEnabled -> UserMedia.Microphone
+            else -> UserMedia.None
+        }
+        updateUserMediaWithPermission(requestedUserMedia)
+
+    }
+
+    private fun onPermissionGrantedUpdateUserMedia() {
+        Toast.makeText(MainActivity@this, "Using ${userMedia.name}", Toast.LENGTH_SHORT).show()
+        scene?.updateUserMedia(this.userMedia)
+        //ensure state of buttons and views are in sync with active userMedia
+        binding.microphoneToggle.isSelected = this.userMedia.hasAudio
+        binding.videoToggle.isSelected = this.userMedia.hasVideo
+        binding.pipLocalVideoView.visibility = if(this.userMedia.hasVideo) View.VISIBLE else View.GONE
+    }
+
+    //endregion Video/Audio Toggle Example
+
+    //region SpeechRecognizer Usage Example (Mute Button Implementation using SpeechRecognizer - requires MICROPHONE Permission)
+
+    private fun toggleSpeechRecognize() {
         val shouldEnableMic = !micEnabled
 
         // this example changes the mic mute button state after the async call has succeeded
@@ -245,7 +302,7 @@ class MainActivity : AppCompatActivity() {
                     Log.i(TAG, "SpeechRecognition ON ")
                     runOnUiThread {
                         micEnabled = true
-                        binding.microphone.isSelected = true
+                        binding.microphoneToggle.isSelected = micEnabled
                     }
                 }
             })
@@ -259,7 +316,7 @@ class MainActivity : AppCompatActivity() {
                     Log.i(TAG, "SpeechRecognition OFF ")
                     runOnUiThread {
                         micEnabled = false
-                        binding.microphone.isSelected = false
+                        binding.microphoneToggle.isSelected = micEnabled
                     }
                 }
             })
@@ -274,7 +331,7 @@ class MainActivity : AppCompatActivity() {
 //        }
     }
 
-    //endregion SpeechRecognizer Usage Example (Mute Button Implementation)
+    //endregion SpeechRecognizer Usage Example (Mute Button Implementation using SpeechRecognizer - requires MICROPHONE Permission)
 
     //region Scene Usage Example (Change Camera View)
 
@@ -336,30 +393,133 @@ class MainActivity : AppCompatActivity() {
     //endregion Go Fullscreen
 
     //region Setup Permissions
+    private fun updateUserMediaWithPermission(requestedUserMedia: UserMedia) {
+        if ((requestedUserMedia.hasAudio || requestedUserMedia.hasVideo) && ContextCompat.checkSelfPermission(this,
+                Manifest.permission.RECORD_AUDIO) + ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+            this.userMedia = requestedUserMedia
+            val shouldShowRecordAudioPermission = ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.RECORD_AUDIO)
+            val shouldShowCameraPermission = ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.CAMERA)
+            if (shouldShowRecordAudioPermission || shouldShowCameraPermission) {
+                //if we have to show the permissions screen then we have to override this flag
+                // so it is skipped
+                continueAndDontAskPermissionAgain = false
+                showExplanation("Permission Required", "You need to enable permissions.",
+                    arrayOf(Manifest.permission.RECORD_AUDIO, Manifest.permission.CAMERA), PERMISSION_REQUEST_UPDATE_USER_MEDIA)
+            } else {
+                requestPermissions(arrayOf(Manifest.permission.RECORD_AUDIO, Manifest.permission.CAMERA), PERMISSION_REQUEST_UPDATE_USER_MEDIA)
+            }
+        } else {
+            this.userMedia = requestUserMedia(requestedUserMedia)
+            onPermissionGrantedUpdateUserMedia()
+        }
+    }
+
+    private fun requestUserMedia(requestedUserMedia: UserMedia): UserMedia {
+        //check for the permissions and request if necessary
+        val missingPermissions = getMissingPermissions()
+        var allowedUserMedia = requestedUserMedia
+        if(missingPermissions.contains("android.permission.CAMERA") && missingPermissions.contains("android.permission.RECORD_AUDIO"))     {
+            allowedUserMedia = UserMedia.None
+        } else if(missingPermissions.contains("android.permission.RECORD_AUDIO") && !missingPermissions.contains("android.permission.CAMERA")) {
+            //no audio but camera allowed
+            allowedUserMedia = UserMedia.Camera
+        } else if(missingPermissions.contains("android.permission.CAMERA") && !missingPermissions.contains("android.permission.RECORD_AUDIO")) {
+            //no camera but audio allowed
+            allowedUserMedia = UserMedia.Microphone
+        }
+        if(requestedUserMedia.ordinal <= allowedUserMedia.ordinal) {
+            return requestedUserMedia
+        }
+        return allowedUserMedia
+    }
+
+    private fun showExplanation(title: String,
+                                message: String,
+                                permissions: Array<String>,
+                                permissionRequestCode: Int) {
+        val builder = AlertDialog.Builder(this)
+        builder.setTitle(title)
+            .setMessage(message)
+            .setPositiveButton(android.R.string.ok
+            ) { dialog, id -> requestPermissions(permissions, permissionRequestCode) }
+        builder.create().show()
+    }
+
+    private fun requestPermission(permissionName: String, permissionRequestCode: Int) {
+        ActivityCompat.requestPermissions(this, arrayOf(permissionName), permissionRequestCode)
+    }
+
     private fun onPermissionsGranted() {
         connect()
     }
 
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<out String>,
-        grantResults: IntArray
-    ) {
+    override fun onRequestPermissionsResult(requestCode: Int,
+                                            permissions: Array<out String>,
+                                            grantResults: IntArray) {
 
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
 
         if (requestCode == PERMISSIONS_REQUEST) {
             val missingPermissions = getMissingPermissions()
-            if (missingPermissions.isNotEmpty()) {
+            if (missingPermissions.size != 0) {
                 // User didn't grant all the permissions. Warn that the application might not work
                 // correctly.
-                AlertDialog.Builder(this).setMessage(R.string.missing_permissions_message)
-                    .setPositiveButton(R.string.close) { dialog, _ ->
+                AlertDialog.Builder(this).setMessage(R.string.missing_permissions_try_again)
+                    .setPositiveButton(R.string.yes) { dialog, _ ->
+                        // User wants to try giving the permissions again.
                         dialog.cancel()
+                    }.setNegativeButton(R.string.no) { dialog, _ ->
+                        // User doesn't want to give the permissions.
+                        dialog.cancel()
+                        onPermissionsGranted()
                     }.show()
             } else {
                 // All permissions granted.
                 onPermissionsGranted()
+            }
+        } else if(requestCode == PERMISSION_REQUEST_UPDATE_USER_MEDIA) {
+
+            val applicableUserMedia = requestUserMedia(userMedia)
+
+            if(userMedia == applicableUserMedia) {
+                this.userMedia = applicableUserMedia
+                onPermissionGrantedUpdateUserMedia()
+            } else {
+
+                if(continueAndDontAskPermissionAgain) {
+                    this.userMedia = applicableUserMedia
+                    onPermissionGrantedUpdateUserMedia()
+                } else {
+                    //display an alert saying some permissions are not enabled and if they wish to continue
+                    val dialog = AlertDialog.Builder(this)
+                        .setCancelable(false)
+                        .setTitle("Missing Permissions")
+                        //.setMessage(Html.fromHtml(getString(R.string.permissions_settings_message, applicableUserMedia), Html.FROM_HTML_SEPARATOR_LINE_BREAK_PARAGRAPH))
+                        .setMessage(Html.fromHtml(getString(R.string.permissions_settings_message, userMedia, applicableUserMedia), Html.FROM_HTML_MODE_LEGACY))
+                        .setPositiveButton(R.string.yes) { dialog, _ ->
+                            dialog.cancel()
+                            continueAndDontAskPermissionAgain = false
+                            this.userMedia = applicableUserMedia
+                            onPermissionGrantedUpdateUserMedia()
+                        }.setNegativeButton(R.string.permissions_setting) { dialog, _ ->
+                            // User doesn't want to give the permissions.
+                            dialog.cancel()
+                            continueAndDontAskPermissionAgain = false
+                            val intent: Intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+                            val uri: Uri = Uri.fromParts("package", getPackageName(), null)
+                            intent.setData(uri)
+                            startActivity(intent)
+                        }
+                        .setNeutralButton(R.string.permissions_setting_continue) { dialog, _ ->
+                            // User doesn't want to give the permissions.
+                            dialog.cancel()
+
+                            continueAndDontAskPermissionAgain = true
+                            this.userMedia = applicableUserMedia
+                            onPermissionGrantedUpdateUserMedia()
+
+                        }.show()
+                }
             }
         }
     }
@@ -411,7 +571,8 @@ class MainActivity : AppCompatActivity() {
         binding.settingsButton.visibility = View.VISIBLE
         binding.settingsButton.isEnabled = true
 
-        binding.microphone.hide()
+        binding.microphoneToggle.visibility = View.GONE
+        binding.videoToggle.visibility = View.GONE
 
         binding.cameraViewsContainer.visibility = View.INVISIBLE
     }
@@ -419,7 +580,8 @@ class MainActivity : AppCompatActivity() {
     private fun onDisconnectingUI() {
         binding.disconnectButtonContainer.visibility = View.VISIBLE
         binding.disconnectButton.isEnabled = false
-        binding.microphone.hide()
+        binding.microphoneToggle.visibility = View.GONE
+        binding.videoToggle.visibility = View.GONE
     }
 
     fun onDisconnectedUI(reason: String) {
@@ -445,7 +607,8 @@ class MainActivity : AppCompatActivity() {
 
         binding.settingsButton.visibility = View.GONE
 
-        binding.microphone.show()
+        binding.microphoneToggle.visibility = View.VISIBLE
+        binding.videoToggle.visibility = View.VISIBLE
 
         binding.cameraViewsContainer.visibility = View.VISIBLE
 

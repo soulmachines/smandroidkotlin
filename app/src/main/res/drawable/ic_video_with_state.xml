@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+  <!-- NOTE: order is important (the first matching state(s) is what is rendered) -->
+  <item
+      android:state_selected="true"
+      android:drawable="@drawable/ic_video_on" />
+  <item
+      android:state_selected="false"
+      android:drawable="@drawable/ic_video_off" />
+</selector>
