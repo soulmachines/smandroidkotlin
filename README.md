@@ -335,6 +335,6 @@ A `Scene` instance can be created using the `SceneFactory` and an initial `UserM
 
 This requires that the permissions must have already been granted for the required `UserMedia`. i.e. to use the `UserMedia.Microphone`, the permission `android.permission.RECORD_AUDIO` needs to be requested and granted. Similarly for `UserMedia.Camera`, the permission `android.permission.CAMERA` is needed and both are required for `UserMedia.MicrophoneAndCamera`.
 
-The android framework provides mechanisms for requesting the necessary permissions and is the app developers responsibility to request these required permissions at the appropriate time within the app experience.
+The android framework provides mechanisms for requesting the necessary permissions and is the app developer's responsibility to request these required permissions at the appropriate time within the app experience.
 
 An example implementation is to create the `Scene` instance first using the `UserMedia.None` and then as soon as they request to enable use of the user microphone or camera, you can request for the necessary permission and then call the `updateUserMedia()` method on the `Scene` instance to update it based on the permissions granted by the user.
