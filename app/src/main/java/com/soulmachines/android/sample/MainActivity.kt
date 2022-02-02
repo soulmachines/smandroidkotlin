@@ -276,7 +276,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun onPermissionGrantedUpdateUserMedia() {
-        Toast.makeText(MainActivity@this, "Using ${userMedia.name}", Toast.LENGTH_SHORT).show()
+        //Toast.makeText(MainActivity@this, "Using ${userMedia.name}", Toast.LENGTH_SHORT).show()
         scene?.updateUserMedia(this.userMedia)
         //ensure state of buttons and views are in sync with active userMedia
         binding.microphoneToggle.isSelected = this.userMedia.hasAudio
