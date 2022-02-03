@@ -453,20 +453,9 @@ class MainActivity : AppCompatActivity() {
         if(newUserMedia == UserMedia.None) return newUserMedia
         //check for the permissions and request if necessary
         val missingPermissions = getMissingPermissions()
-        var allowAudio = false
-        var allowVideo = false
-        if(missingPermissions.contains("android.permission.CAMERA") && !missingPermissions.contains("android.permission.RECORD_AUDIO")) {
-            //no camera but audio allowed
-            allowAudio = true
-        } else if(missingPermissions.contains("android.permission.RECORD_AUDIO") && !missingPermissions.contains("android.permission.CAMERA")) {
-            //no audio but camera allowed
-            allowVideo = true
-        } else if(!missingPermissions.contains("android.permission.CAMERA") && !missingPermissions.contains("android.permission.RECORD_AUDIO")) {
-            //both are allowed
-            allowAudio = true
-            allowVideo = true
-        }
-        
+        var allowVideo = !missingPermissions.contains("android.permission.CAMERA");
+        var allowAudio = !missingPermissions.contains("android.permission.RECORD_AUDIO");
+
         //if the usermedia matches the allowed flags or if everything is granted, then return the requested userMedia
         //otherwise just return the original value
         if((allowAudio && allowVideo) || (newUserMedia.hasAudio == allowAudio && newUserMedia.hasVideo == allowVideo)) {
