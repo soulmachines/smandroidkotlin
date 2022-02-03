@@ -466,10 +466,10 @@ class MainActivity : AppCompatActivity() {
             allowAudio = true
             allowVideo = true
         }
-
-        //if we allow the permissions, then return the requested userMedia
+        
+        //if the usermedia matches the allowed flags or if everything is granted, then return the requested userMedia
         //otherwise just return the original value
-        if(newUserMedia.hasAudio == allowAudio && newUserMedia.hasVideo == allowVideo) {
+        if((allowAudio && allowVideo) || (newUserMedia.hasAudio == allowAudio && newUserMedia.hasVideo == allowVideo)) {
             return newUserMedia
         }
         return this.userMedia
