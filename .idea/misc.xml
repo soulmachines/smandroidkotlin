@@ -3,7 +3,12 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="app/src/main/res/drawable-anydpi/ic_mic_off.xml" value="0.17905405405405406" />
+        <entry key="app/src/main/res/drawable-anydpi/ic_mic_on.xml" value="0.17905405405405406" />
+        <entry key="app/src/main/res/drawable-anydpi/ic_video_off.xml" value="0.17905405405405406" />
+        <entry key="app/src/main/res/drawable-anydpi/ic_video_on.xml" value="0.17905405405405406" />
         <entry key="app/src/main/res/drawable-anydpi/ic_videocam.xml" value="0.17195945945945945" />
+        <entry key="app/src/main/res/drawable-anydpi/ic_videocam_c.xml" value="0.17905405405405406" />
         <entry key="app/src/main/res/drawable/ic_mic_with_state.xml" value="0.23779264214046822" />
         <entry key="app/src/main/res/drawable/ic_video_with_state.xml" value="0.23779264214046822" />
         <entry key="app/src/main/res/drawable/ic_videocam_l.xml" value="0.17195945945945945" />
