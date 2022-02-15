@@ -1,9 +1,18 @@
 <resources>
     <string name="app_name">SM Android Kotlin Sample</string>
 
-    <string name="missing_permissions_message">The required permissions have been previously denied and the app will not work correctly. Change app permissions on your Android phone and try again.</string>
+    <string name="missing_permissions_try_again">The application is missing permissions. It might not work correctly. Do you want to try again?</string>
     <string name="connection_error">Connection Error</string>
     <string name="connection_jwt_error_message">Failed to obtain a valid JWT Token, please see logs for details.</string>
     <string name="ok">Ok</string>
     <string name="close">Close</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
+    <string name="permissions_setting">Setup Permissions</string>
+    <string name="permissions_setting_continue">Continue and don\'t ask again</string>
+    <string name="permissions_settings_message"><![CDATA[
+    <p>Insufficient permissions for: <b>%1$s</b></p>
+    <p>Do you wish to Continue or Setup Permissions?</p>
+    <p>If you continue, only the following will be applied: <b>%2$s</b></p>
+    ]]></string>
 </resources>

@@ -93,15 +93,26 @@
         </LinearLayout>
 
 
-        <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/microphone"
-            android:visibility="gone"
+        <androidx.appcompat.widget.AppCompatImageButton
+            android:id="@+id/microphoneToggle"
+            android:visibility="visible"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintRight_toRightOf="parent"
             android:src="@drawable/ic_mic_with_state"
-            android:contentDescription="Microphone"
+            android:contentDescription="Enable Microphone"
+            android:layout_margin="16dp" />
+
+        <androidx.appcompat.widget.AppCompatImageButton
+            android:id="@+id/videoToggle"
+            android:visibility="visible"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintBottom_toTopOf="@id/microphoneToggle"
+            app:layout_constraintRight_toRightOf="parent"
+            android:src="@drawable/ic_video_with_state"
+            android:contentDescription="Enable Video"
             android:layout_margin="16dp" />
 
         <ImageButton
