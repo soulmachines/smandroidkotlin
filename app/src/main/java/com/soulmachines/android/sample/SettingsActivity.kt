@@ -34,7 +34,7 @@ class ConfigurationFragment(val activity: SettingsActivity) : PreferenceFragment
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         setPreferencesFromResource(R.xml.configuration, rootKey)
 
-        sharedPreferences = preferenceManager.sharedPreferences
+        sharedPreferences = preferenceManager.sharedPreferences!!
 
         //save all existing summary definitions
         val preferencesMap: Map<String?, *> = sharedPreferences.getAll()
@@ -50,13 +50,10 @@ class ConfigurationFragment(val activity: SettingsActivity) : PreferenceFragment
                 }
 
                 if(it.key.equals(USE_EXISTING_JWT_TOKEN)) {
-                    (it as SwitchPreferenceCompat).onPreferenceChangeListener =
-                        object : Preference.OnPreferenceChangeListener {
-                            override fun onPreferenceChange(preference: Preference?, newValue: Any?): Boolean {
-                                changeStateOfSelfSignedRelatedProperties(!(newValue as Boolean))
-                                return true
-                            }
-                        }
+                    (it as SwitchPreferenceCompat).setOnPreferenceChangeListener { _, newValue ->
+                        changeStateOfSelfSignedRelatedProperties(!(newValue as Boolean))
+                        true
+                    }
                 }
             }
         }
@@ -70,7 +67,6 @@ class ConfigurationFragment(val activity: SettingsActivity) : PreferenceFragment
         if (button != null) {
             button.onPreferenceClickListener = Preference.OnPreferenceClickListener {
                 openMainActivity()
-                true
                 true
             }
         }
