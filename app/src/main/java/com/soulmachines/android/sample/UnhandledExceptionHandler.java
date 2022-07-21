@@ -22,7 +22,7 @@ import java.io.StringWriter;
  * Thread.setUncaughtExceptionHandler(), to apply to background threads as well.
  */
 public class UnhandledExceptionHandler implements Thread.UncaughtExceptionHandler {
-  private static final String TAG = "AppRTCMobileActivity";
+  private static final String TAG = "SMAndroidSample";
   private final Activity activity;
 
   public UnhandledExceptionHandler(final Activity activity) {
