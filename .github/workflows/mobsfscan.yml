@@ -16,4 +16,4 @@ jobs:
       - name: mobsfscan
         uses: MobSF/mobsfscan@main
         with:
-          args: '.'
+          args: '. --config ./.mobsf'
