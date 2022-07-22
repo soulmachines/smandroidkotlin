@@ -1,2 +1,3 @@
-  ignore-rules:
+---
+ignore-rules:
   - android_kotlin_hiddenui
