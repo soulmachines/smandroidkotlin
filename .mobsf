@@ -1,0 +1,13 @@
+---
+- ignore-filenames:
+
+  ignore-paths:
+  - __MACOSX
+  - skip_dir
+
+  ignore-rules:
+  - android_kotlin_hiddenui
+
+  severity-filter:
+  - WARNING
+  - ERROR
