@@ -1,18 +1,35 @@
 <PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:android="http://schemas.android.com/apk/res/android"
     >
+
+    <PreferenceCategory android:key="API Key" android:title="API Key" app:iconSpaceReserved="false">
+        <EditTextPreference
+        android:title="API KEY"
+        app:iconSpaceReserved="false"
+        android:summary="The API Key generated using DDNA Studio."
+        android:key="connectionConfigApiKey"
+        android:defaultValue=""/>
+
+        <SwitchPreferenceCompat
+            app:iconSpaceReserved="false"
+            android:title="Use Server Connection and Access Token."
+            android:summary="Provide the server url and the access token to use."
+            android:key="useProvidedConnectionConfig"
+            android:defaultValue="false"
+        />
+
+    </PreferenceCategory>
+
     
-    <PreferenceCategory android:title="Server Connection (required)" app:iconSpaceReserved="false" >
+    <PreferenceCategory android:key="providedConnection" android:title="Server Connection and Access Token" app:iconSpaceReserved="false" android:dependency="useProvidedConnectionConfig">
         <EditTextPreference
             android:title="DIGITAL PERSON SERVER URL"
             app:iconSpaceReserved="false"
             android:summary="Websocket URL prefixed with wss://"
             android:key="connectionUrl"
-            android:defaultValue="wss://dh.soulmachines.cloud" />
-    </PreferenceCategory>
+            android:defaultValue="wss://dh.soulmachines.cloud"
+            />
 
-
-    <PreferenceCategory android:key="existingToken" android:title="Access Token (required)" app:iconSpaceReserved="false">
         <EditTextPreference
             android:title="KEY NAME"
             app:iconSpaceReserved="false"

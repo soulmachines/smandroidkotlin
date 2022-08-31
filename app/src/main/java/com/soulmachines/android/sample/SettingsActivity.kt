@@ -30,6 +30,10 @@ class ConfigurationFragment(val activity: SettingsActivity) : PreferenceFragment
 
     private val existingSummary = hashMapOf<String, String>()
 
+    private val providedConnectionRelatedPrefs = mutableListOf<Preference>()
+    private val providedConnectionRelatedPrefsKeys = setOf<String>("providedConnectionConfig")
+
+
     private val selfSignedStrategyRelatedPrefs = mutableListOf<Preference>()
     private val selfSignedStrategyRelatedPrefsKeys = setOf<String>(KEY_NAME, PRIVATE_KEY, USE_ORCHESTRATION_SERVER, ORCHESTRATION_SERVER_URL)
 
@@ -50,10 +54,19 @@ class ConfigurationFragment(val activity: SettingsActivity) : PreferenceFragment
                 if(it is EditTextPreference) {
                     existingSummary.put(it.key as String, it!!.summary as String)
                 }
+                if(providedConnectionRelatedPrefsKeys.contains(it!!.key)) {
+                    providedConnectionRelatedPrefs.add(it)
+                }
 
                 if(it.key.equals(USE_EXISTING_JWT_TOKEN)) {
                     (it as SwitchPreferenceCompat).setOnPreferenceChangeListener { _, newValue ->
                         changeStateOfSelfSignedRelatedProperties(!(newValue as Boolean))
+                        true
+                    }
+                }
+                if(it.key.equals("useProvidedConnectionConfig")) {
+                    (it as SwitchPreferenceCompat).setOnPreferenceChangeListener { _, newValue ->
+                        changeStateOfProvidedConnectionRelatedProperties(!(newValue as Boolean))
                         true
                     }
                 }
@@ -76,6 +89,12 @@ class ConfigurationFragment(val activity: SettingsActivity) : PreferenceFragment
 
     private fun changeStateOfSelfSignedRelatedProperties(isEnabled: Boolean) {
         for (pref in selfSignedStrategyRelatedPrefs) {
+            pref.isEnabled = isEnabled
+        }
+    }
+
+    private fun changeStateOfProvidedConnectionRelatedProperties(isEnabled: Boolean) {
+        for (pref in providedConnectionRelatedPrefs) {
             pref.isEnabled = isEnabled
         }
     }
