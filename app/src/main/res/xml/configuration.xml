@@ -20,7 +20,7 @@
 
     </PreferenceCategory>
 
-    
+
     <PreferenceCategory android:key="providedConnection" android:title="Server Connection and Access Token" app:iconSpaceReserved="false" android:dependency="useProvidedConnectionConfig">
         <EditTextPreference
             android:title="DIGITAL PERSON SERVER URL"
