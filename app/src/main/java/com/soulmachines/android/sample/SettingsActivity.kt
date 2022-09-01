@@ -64,13 +64,13 @@ class ConfigurationFragment(val activity: SettingsActivity) : PreferenceFragment
 
                 if(it.key.equals(USE_EXISTING_JWT_TOKEN)) {
                     (it as SwitchPreferenceCompat).setOnPreferenceChangeListener { _, newValue ->
-                        changeStateOfSelfSignedRelatedProperties(!(newValue as Boolean))
+                        changeStateOfSelfSignedRelatedProperties((newValue as Boolean))
                         true
                     }
                 }
                 if(it.key.equals(USE_PROVIDED_CONNECTION)) {
                     (it as SwitchPreferenceCompat).setOnPreferenceChangeListener { _, newValue ->
-                        changeStateOfProvidedConnectionRelatedProperties(!(newValue as Boolean))
+                        changeStateOfProvidedConnectionRelatedProperties((newValue as Boolean))
                         true
                     }
                 }
@@ -79,11 +79,11 @@ class ConfigurationFragment(val activity: SettingsActivity) : PreferenceFragment
 
         //set initial disabled state of the self gen related properties
         val useJWTProp = findPreference<Preference>(USE_EXISTING_JWT_TOKEN)
-        changeStateOfSelfSignedRelatedProperties(!(useJWTProp as SwitchPreferenceCompat).isChecked)
+        changeStateOfSelfSignedRelatedProperties((useJWTProp as SwitchPreferenceCompat).isChecked)
 
         //set initial disabled state of the self gen related properties
         val useProvidedConfig = findPreference<Preference>(USE_PROVIDED_CONNECTION)
-        changeStateOfProvidedConnectionRelatedProperties(!(useProvidedConfig as SwitchPreferenceCompat).isChecked)
+        changeStateOfProvidedConnectionRelatedProperties((useProvidedConfig as SwitchPreferenceCompat).isChecked)
 
 
         val button = preferenceManager.findPreference<Preference>("applyChanges")
@@ -95,19 +95,19 @@ class ConfigurationFragment(val activity: SettingsActivity) : PreferenceFragment
         }
     }
 
-    private fun changeStateOfSelfSignedRelatedProperties(isEnabled: Boolean) {
+    private fun changeStateOfSelfSignedRelatedProperties(useJwtToken: Boolean) {
         for (pref in selfSignedStrategyRelatedPrefs) {
-            pref.isEnabled = isEnabled
+            pref.isEnabled = !useJwtToken
         }
     }
 
-    private fun changeStateOfProvidedConnectionRelatedProperties(isEnabled: Boolean) {
+    private fun changeStateOfProvidedConnectionRelatedProperties(useProvidedConnection: Boolean) {
         for (pref in providedConnectionRelatedPrefs) {
-            pref.isEnabled = isEnabled
+            pref.isEnabled = useProvidedConnection
         }
 
         apiKeyPref?.let {
-            it.isEnabled = isEnabled
+            it.isEnabled = !useProvidedConnection
         }
     }
 
