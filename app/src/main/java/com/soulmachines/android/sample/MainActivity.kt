@@ -176,49 +176,68 @@ class MainActivity : AppCompatActivity() {
         }
         onConnectingUI()
 
-        // Obtain a JWT token and then connect the Scene
-        JWTTokenProvider(this).getJWTToken(
-            success = { jwtToken ->
-                val connectionUrl = preferences.getString(ConfigurationFragment.CONNECTION_URL, "")!!
-                Log.i(TAG, "Connecting to:  `${connectionUrl}`")
-                Log.d(TAG, "Using JWT Token `${jwtToken}`")
-                //using the obtained JWT token, proceed with connecting the Scene
-                connectScene(connectionUrl, jwtToken)
-            },
-            error = { errorMessage ->
-                Log.e(TAG, errorMessage)
-                displayAlertAndResetUI(
-                    getString(R.string.connection_error),
-                    getString(R.string.connection_jwt_error_message)
-                )
-            })
-
+        val useProvidedConnection = preferences.getBoolean(ConfigurationFragment.USE_PROVIDED_CONNECTION, false)
+        if(useProvidedConnection) {
+            // Obtain a JWT token and then connect the Scene
+            JWTTokenProvider(this).getJWTToken(
+                success = { jwtToken ->
+                    val connectionUrl = preferences.getString(ConfigurationFragment.CONNECTION_URL, "")!!
+                    Log.i(TAG, "Connecting to:  `${connectionUrl}`")
+                    Log.d(TAG, "Using JWT Token `${jwtToken}`")
+                    //using the obtained JWT token, proceed with connecting the Scene
+                    connectScene(connectionUrl = connectionUrl, jwtToken = jwtToken)
+                },
+                error = { errorMessage ->
+                    Log.e(TAG, errorMessage)
+                    displayAlertAndResetUI(
+                        getString(R.string.connection_error),
+                        getString(R.string.connection_jwt_error_message)
+                    )
+                })
+        } else {
+            //use the API Key
+            val apiKey = preferences.getString(ConfigurationFragment.API_KEY, "");
+            connectScene(apiKey = apiKey)
+        }
     }
 
-    private fun connectScene(connectionUrl: String, jwtToken: String) {
-        scene?.connect(url = connectionUrl, accessToken = jwtToken)!!.subscribe(
-            object : Completion<SessionInfo> {
-                override fun onSuccess(result: SessionInfo) {
-                    runOnUiThread {
-                        onConnectedUI()
-                    }
-                }
-
-                override fun onError(error: CompletionError) {
-                    runOnUiThread {
-                        displayAlertAndResetUI(
-                            getString(R.string.connection_error),
-                            error.getMessage()
-                        )
-                    }
+    private fun connectScene(apiKey: String? = null, connectionUrl: String? = null, jwtToken: String? = null) {
+        val onConnect = object : Completion<SessionInfo> {
+            override fun onSuccess(result: SessionInfo) {
+                runOnUiThread {
+                    onConnectedUI()
                 }
             }
-        )
+            override fun onError(error: CompletionError) {
+                runOnUiThread {
+                    displayAlertAndResetUI(
+                        getString(R.string.connection_error),
+                        error.getMessage()
+                    )
+                }
+            }
+        }
+
+        apiKey?.let {
+            scene?.connect(apiKey = it)!!.subscribe(onConnect)
+        }
+
+        connectionUrl?.let {
+            scene?.connect(url = it, accessToken = jwtToken)!!.subscribe(onConnect)
+        }
+
     }
 
 
     private fun hasRequiredConfiguration(): Boolean {
+        val useProvidedConnection = preferences.getBoolean(ConfigurationFragment.USE_PROVIDED_CONNECTION, false)
+        if(!useProvidedConnection) {
+            //valid if we have a value for the API Key
+            val apiKey = preferences.getString(ConfigurationFragment.API_KEY, null)
+            return !apiKey.isNullOrEmpty()
+        }
 
+        //fallback, check the provided connection if present
         val useExistingToken = preferences.getBoolean(ConfigurationFragment.USE_EXISTING_JWT_TOKEN, false)
         val url = preferences.getString(ConfigurationFragment.CONNECTION_URL, null)
         val keyName = preferences.getString(ConfigurationFragment.KEY_NAME, null)

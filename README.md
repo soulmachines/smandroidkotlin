@@ -26,7 +26,7 @@ To import the library into your own project, add the following entries to the `a
   Add the following dependencies to the `app/build.gradle`
 ```
  dependencies {        
-	 implementation 'com.soulmachines.android:smsdk-core:1.1.0'    
+	 implementation 'com.soulmachines.android:smsdk-core:1.3.0'    
 }
 ```
 
@@ -43,7 +43,7 @@ configuration. This is used by the `getSmSdkDocumentation` task to extract the s
 
 ```
  dependencies {
-	 documentation 'com.soulmachines.android:smsdk-core:1.1.0:docs@zip'
+	 documentation 'com.soulmachines.android:smsdk-core:1.3.0:docs@zip'
 }
 ```
 
@@ -124,12 +124,23 @@ and then set the views on the Scene but use the instance of the custom layout yo
  ```
  *In the snippet above, it uses the same custom layout for both the remote and local video feeds, but you can specify a separate one for each as long as you use the correct predefined id for the corresponding child video view*
 
- ## Connect to a Digital Human (DH) server using a valid web-socket URL and a valid JWT token
- ```
+
+## Connection methods
+The SDK supports two connection methods: connecting with an API Key generated through DDNA Studio, and connecting with a web-socket URL and JWT.
+
+### Connecting using an API Key.
+
+Establish a connection by providing the API Key generated within DDNA Studio. Provide optional `userText` to send a message to the Orchestration server during connection, and a `RetryOptions` object specifying the number of connection attempts and the delay between attempting a connection, should the connection encounter an error.
+```
+scene?.connect(apiKey = "DDNA_STUDIO_GENERATED_API_KEY")
+```
+
+### Connecting using a valid web-socket URL and a valid JWT.
+```
  scene?.connect(      
     url = "wss://dh.soulmachines.cloud",      
-    accessToken = "JWT_ACCESS_TOKEN")      
- ```
+    accessToken = "JWT_ACCESS_TOKEN")
+```
 
  ## Connection Result  
 On the provided API (e.g. **Scene** and **Persona**), all the asynchronous method calls provide a way such that you can subscribe to the result (whether it was successful or resulted in an error). These methods will return a **Completable/Cancellable** result from which you can subscribe to the result by passing in a **Completion** callback. This interface accepts a generic type parameter that determines the type of the response for a successful result.

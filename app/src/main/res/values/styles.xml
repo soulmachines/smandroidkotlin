@@ -9,6 +9,7 @@
     </style>
 
     <style name="DialogTheme" parent="Theme.AppCompat.Light">
-
+        <!-- this will make color of the hint/summary of the Settings screen to match that color of the heading -->
+        <item name="android:textColorSecondary">?android:textColorPrimary</item>
     </style>
 </resources>
