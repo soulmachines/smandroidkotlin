@@ -1,5 +1,5 @@
 
-# Kotlin Sample Project
+# (smandroidkotlin) Soul Machines Android Kotlin Sample Project
 
 This project shows how to use the Soul Machines Android SDK and pull the library into your own projects. It also shows some of the basic SDK functionality for reference.
 
@@ -349,3 +349,11 @@ This requires that the permissions must have already been granted for the requir
 The android framework provides mechanisms for requesting the necessary permissions and is the app developer's responsibility to request these required permissions at the appropriate time within the app experience.
 
 An example implementation is to create the `Scene` instance first using the `UserMedia.None` and then as soon as they request to enable use of the user microphone or camera, you can request for the necessary permission and then call the `updateUserMedia()` method on the `Scene` instance to update it based on the permissions granted by the user.
+
+
+## Licensing
+This repository is licensed under the Apache License, Version 2.0. See
+[LICENSE](./LICENSE) for the full license text.
+
+## Issues
+For any issues, please reach out to one of our Customer Success team members.
