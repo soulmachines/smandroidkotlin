@@ -1,5 +1,5 @@
 
-# Kotlin Sample Project
+# (smandroidkotlin) Soul Machines Android Kotlin Sample Project
 
 This project shows how to use the Soul Machines Android SDK and pull the library into your own projects. It also shows some of the basic SDK functionality for reference.
 
